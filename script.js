@@ -37,6 +37,15 @@ function updateClockHands() {
         minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
         secondHand.style.transform = `rotate(${secondDegrees}deg)`;
     }
+
+    // Dynamically update classic date text
+    const dateEl = document.querySelector('.classic-date');
+    if (dateEl) {
+        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const dayName = days[now.getDay()];
+        const dayDate = String(now.getDate()).padStart(2, '0');
+        dateEl.textContent = `${dayName} ${dayDate}`;
+    }
 }
 
 setInterval(updateClockHands, 1000);
@@ -61,31 +70,59 @@ preorderForm.addEventListener('submit', (e) => {
         return;
     }
     
-    showSuccessCard(email);
+    const submitBtn = document.getElementById('btn-submit-preorder');
+    if (submitBtn) {
+        submitBtn.classList.add('submitting');
+        submitBtn.disabled = true;
+    }
+    
+    setTimeout(() => {
+        if (submitBtn) {
+            submitBtn.classList.remove('submitting');
+            submitBtn.disabled = false;
+        }
+        showSuccessCard(email);
+    }, 1200);
 });
 
 function validateForm(name, email) {
     let isValid = true;
     
-    const nameError = document.getElementById('name-error');
-    const emailError = document.getElementById('email-error');
+    const nameGroup = userNameInput.closest('.form-group');
+    const emailGroup = userEmailInput.closest('.form-group');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (name.length < 2) {
-        nameError.style.display = 'block';
+        if (nameGroup) nameGroup.classList.add('has-error');
         isValid = false;
     } else {
-        nameError.style.display = 'none';
+        if (nameGroup) nameGroup.classList.remove('has-error');
     }
     
-    if (!email.includes('@') || email.length < 5) {
-        emailError.style.display = 'block';
+    if (!emailRegex.test(email)) {
+        if (emailGroup) emailGroup.classList.add('has-error');
         isValid = false;
     } else {
-        emailError.style.display = 'none';
+        if (emailGroup) emailGroup.classList.remove('has-error');
     }
     
     return isValid;
 }
+
+userNameInput.addEventListener('input', () => {
+    if (userNameInput.value.trim().length >= 2) {
+        const nameGroup = userNameInput.closest('.form-group');
+        if (nameGroup) nameGroup.classList.remove('has-error');
+    }
+});
+
+userEmailInput.addEventListener('input', () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(userEmailInput.value.trim())) {
+        const emailGroup = userEmailInput.closest('.form-group');
+        if (emailGroup) emailGroup.classList.remove('has-error');
+    }
+});
 
 function showSuccessCard(email) {
     preorderFormContainer.style.display = 'none';
@@ -95,6 +132,12 @@ function showSuccessCard(email) {
 
 resetFormBtn.addEventListener('click', () => {
     preorderForm.reset();
+    
+    const nameGroup = userNameInput.closest('.form-group');
+    const emailGroup = userEmailInput.closest('.form-group');
+    if (nameGroup) nameGroup.classList.remove('has-error');
+    if (emailGroup) emailGroup.classList.remove('has-error');
+    
     preorderFormContainer.style.display = 'block';
     preorderSuccess.style.display = 'none';
     userNameInput.focus();
@@ -116,15 +159,21 @@ const navToggle = document.getElementById('nav-toggle');
 const navMenu = document.getElementById('nav-menu');
 const navLinks = document.querySelectorAll('.nav-link');
 
-navToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-});
-
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
+if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        navToggle.classList.toggle('active');
     });
-});
+
+    // Close mobile menu when any link (including Order button) is clicked
+    const menuLinks = navMenu.querySelectorAll('a');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navToggle.classList.remove('active');
+        });
+    });
+}
 
 /* Smooth scroll for anchor links */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -136,3 +185,29 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+/* Scroll spy to highlight active nav link */
+const sections = document.querySelectorAll('section[id]');
+const navMenuItems = document.querySelectorAll('.nav-menu .nav-link');
+
+function scrollSpy() {
+    const scrollPosition = window.scrollY + 120; // Offset for navbar height
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            navMenuItems.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    });
+}
+
+window.addEventListener('scroll', scrollSpy);
+window.addEventListener('load', scrollSpy);

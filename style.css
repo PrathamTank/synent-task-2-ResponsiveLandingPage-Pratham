@@ -155,6 +155,10 @@ button {
     justify-content: space-between;
     width: 24px;
     height: 18px;
+    background: none;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 1001;
 }
 
 .hamburger-bar {
@@ -162,6 +166,18 @@ button {
     height: 2px;
     background-color: var(--text-primary);
     transition: var(--trans);
+}
+
+.nav-toggle.active .hamburger-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle.active .hamburger-bar:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active .hamburger-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Buttons */
@@ -1222,22 +1238,38 @@ button {
         flex-direction: column;
         background: rgba(7, 9, 14, 0.98);
         border-bottom: 1px solid var(--border-color);
-        padding: 20px;
-        gap: 0;
+        padding: 0 20px;
+        gap: 8px;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: max-height 0.3s ease, padding 0.3s ease;
     }
 
     .nav-menu.active {
         max-height: 400px;
-        padding: 20px;
+        padding: 24px 20px;
     }
 
     .nav-link {
         width: 100%;
         padding: 12px 0;
         font-size: 0.9rem;
+        transition: var(--trans);
+    }
+
+    .nav-link::after {
+        display: none !important;
+    }
+
+    .nav-link.active {
+        color: var(--accent-cyan);
+        padding-left: 12px;
+        border-left: 2px solid var(--accent-cyan);
+    }
+
+    .nav-menu .btn-nav {
+        margin-top: 12px;
+        width: 100%;
     }
 
     .hero-section {
@@ -1340,8 +1372,9 @@ button {
     }
 
     .watch-mockup-wrapper {
-        max-width: 250px;
-        margin: 0 auto;
+        transform: scale(0.85);
+        margin: -15px auto;
+        transform-origin: center center;
     }
 
     .customizer-controls {
@@ -1509,9 +1542,41 @@ button {
         padding: 30px 20px;
     }
 
-    .specs-table th,
+    .watch-mockup-wrapper {
+        transform: scale(0.72);
+        margin: -40px auto;
+    }
+
+    .specs-table thead {
+        display: none;
+    }
+    
+    .specs-table, 
+    .specs-table tbody, 
+    .specs-table tr, 
     .specs-table td {
-        padding: 8px 4px;
-        font-size: 0.75rem;
+        display: block;
+        width: 100%;
+    }
+    
+    .specs-table tr {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .specs-table tr:last-child {
+        border-bottom: none;
+    }
+    
+    .specs-table td {
+        padding: 0;
+        border: none;
+        font-size: 0.95rem;
+    }
+    
+    .spec-label {
+        width: 100%;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
     }
 }
